@@ -73,7 +73,7 @@ SetStringCallback(void *userData, OTF2_StringRef self, const char *string);
  * @return an OTF2 error code
  */
 OTF2_CallbackCode
-GlobalDefitionRegionRegisterCallback(
+GlobalDefinitionRegionRegisterCallback(
         void *userData,
         OTF2_RegionRef self,
         OTF2_StringRef name,

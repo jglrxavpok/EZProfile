@@ -38,25 +38,23 @@ OTF2_CallbackCode
 SetStringCallback(void *userData, OTF2_StringRef self, const char *string) {
     struct vector *strings = ((struct user_data *) userData)->strings;
     struct vector *names = ((struct user_data *) userData)->names;
-    if (names->size == names->capacity) {
-        return OTF2_CALLBACK_INTERRUPT;
-    }
     strings->members[self] = (uint64_t) string;
+    printf(">> %i = %s\n", self, string);
     return OTF2_CALLBACK_SUCCESS;
 }
 
 OTF2_CallbackCode
-GlobalDefitionRegionRegisterCallback(void *userData,
-                                     OTF2_RegionRef self,
-                                     OTF2_StringRef name,
-                                     OTF2_StringRef canonicalName,
-                                     OTF2_StringRef description,
-                                     OTF2_RegionRole regionRole,
-                                     OTF2_Paradigm paradigm,
-                                     OTF2_RegionFlag regionFlags,
-                                     OTF2_StringRef sourceFile,
-                                     uint32_t beginLineNumber,
-                                     uint32_t endLineNumber) {
+GlobalDefinitionRegionRegisterCallback(void *userData,
+                                       OTF2_RegionRef self,
+                                       OTF2_StringRef name,
+                                       OTF2_StringRef canonicalName,
+                                       OTF2_StringRef description,
+                                       OTF2_RegionRole regionRole,
+                                       OTF2_Paradigm paradigm,
+                                       OTF2_RegionFlag regionFlags,
+                                       OTF2_StringRef sourceFile,
+                                       uint32_t beginLineNumber,
+                                       uint32_t endLineNumber) {
     struct vector *names = ((struct user_data *) userData)->names;
     names->members[self] = canonicalName;
 
