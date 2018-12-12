@@ -5,42 +5,25 @@
 #include <inttypes.h>
 #include "datastructures.h"
 #include "callbacks.h"
+#include "ezprofile.h"
 
 int main() {
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
     printf("CWD: %s\n", cwd);
     OTF2_Reader* reader = OTF2_Reader_Open(
-            //"../tests/test_stdio/eztrace_log.otf2"
+            "../tests/test_stdio/eztrace_log.otf2"
             //"../tests/taurus_west_class_a_full_4/traces.otf2"
             //"../tests/scorep_smxv-omp-dynamic_large/traces.otf2"
-            "../tests/taurus_west_class_a_full_4/traces.otf2"
+            //"../tests/taurus_west_class_a_full_4/traces.otf2"
             );
     OTF2_Reader_SetSerialCollectiveCallbacks(reader);
 
     uint64_t number_of_locations;
     OTF2_Reader_GetNumberOfLocations(reader,
                                      &number_of_locations);
-    struct vector *locations = malloc(sizeof(*locations)
-                                      + number_of_locations
-                                        * sizeof(*locations->members));
-    locations->capacity = number_of_locations;
-    locations->size = 0;
 
-    uint64_t nStrings = 1024;
-    struct vector *strings = malloc(sizeof(*strings) + nStrings * sizeof(*strings->members));
-    strings->size = 0;
-    strings->capacity = nStrings;
-
-    struct vector *names = malloc(sizeof(*names) + nStrings * sizeof(*names->members));
-    names->size = 0;
-    names->capacity = nStrings;
-
-
-    struct user_data *userData = malloc(sizeof(struct user_data));
-    userData->locations = locations;
-    userData->strings = strings;
-    userData->names = names;
+    ezdata* ezdata = NewEZData(INCLUSIVE, 5, number_of_locations); // TODO: use real values
 
     OTF2_GlobalDefReader *global_def_reader = OTF2_Reader_GetGlobalDefReader(reader);
 
@@ -54,7 +37,7 @@ int main() {
     OTF2_Reader_RegisterGlobalDefCallbacks(reader,
                                            global_def_reader,
                                            global_def_callbacks,
-                                           userData);
+                                           ezdata);
     OTF2_GlobalDefReaderCallbacks_Delete(global_def_callbacks);
 
     uint64_t definitions_read = 0;
@@ -64,18 +47,18 @@ int main() {
 
     // everything has been stored, select the ones we want to read
 
-    for (size_t i = 0; i < locations->size; i++) {
-        OTF2_Reader_SelectLocation(reader, locations->members[i]);
+    for (size_t i = 0; i < ezdata->locations->size; i++) {
+        OTF2_Reader_SelectLocation(reader, RetrieveLocation(ezdata, i));
     }
 
     bool successful_open_def_files =
             OTF2_Reader_OpenDefFiles(reader) == OTF2_SUCCESS;
     OTF2_Reader_OpenEvtFiles(reader);
 
-    for (size_t i = 0; i < locations->size; i++) {
+    for (size_t i = 0; i < ezdata->locations->size; i++) {
         if (successful_open_def_files) {
             OTF2_DefReader *def_reader =
-                    OTF2_Reader_GetDefReader(reader, locations->members[i]);
+                    OTF2_Reader_GetDefReader(reader, RetrieveLocation(ezdata, i));
             if (def_reader) {
                 uint64_t def_reads = 0;
                 OTF2_Reader_ReadAllLocalDefinitions(reader,
@@ -85,7 +68,7 @@ int main() {
             }
         }
         OTF2_EvtReader *evt_reader =
-                OTF2_Reader_GetEvtReader(reader, locations->members[i]);
+                OTF2_Reader_GetEvtReader(reader, RetrieveLocation(ezdata, i));
     }
 
     if (successful_open_def_files) {
@@ -104,7 +87,7 @@ int main() {
     OTF2_Reader_RegisterGlobalEvtCallbacks(reader,
                                            global_evt_reader,
                                            event_callbacks,
-                                           userData);
+                                           ezdata);
     OTF2_GlobalEvtReaderCallbacks_Delete(event_callbacks);
 
     // read all
@@ -120,6 +103,6 @@ int main() {
     OTF2_Reader_CloseEvtFiles(reader);
 
     OTF2_Reader_Close(reader);
-    free(locations);
+    free(ezdata);
     return EXIT_SUCCESS;
 }

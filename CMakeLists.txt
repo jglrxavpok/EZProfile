@@ -25,5 +25,7 @@ add_executable(ezprofile
         src/callbacks.c
         src/callbacks.h
         src/datastructures.h
-        )
+        src/hashmap/hashmap.c
+        src/hashmap/hashmap.h
+        src/ezprofile.c src/ezprofile.h src/datastructures.c)
 target_link_libraries(ezprofile otf2)

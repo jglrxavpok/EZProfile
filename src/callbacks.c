@@ -3,6 +3,7 @@
 //
 #include "callbacks.h"
 #include "datastructures.h"
+#include "ezprofile.h"
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -12,10 +13,9 @@ RegionEntryCallback(OTF2_LocationRef location,
                     void *userData,
                     OTF2_AttributeList *attributes,
                     OTF2_RegionRef region) {
-    struct vector *strings = ((struct user_data *) userData)->strings;
-    struct vector *names = ((struct user_data *) userData)->names;
-    printf("Entering region %u at location %" PRIu64 " at time %" PRIu64 " (%s).\n",
-           region, location, time, ((char *) strings->members[names->members[region]]));
+    ezdata* data = userData;
+    printf("Entering region %u at location %s at time %" PRIu64 " (%s).\n",
+           region, RetrieveLocationName(data, location), time, RetrieveRegionName(data, region));
 
     return OTF2_CALLBACK_SUCCESS;
 }
@@ -26,20 +26,18 @@ RegionExitCallback(OTF2_LocationRef location,
                    void *userData,
                    OTF2_AttributeList *attributes,
                    OTF2_RegionRef region) {
-    struct vector *strings = ((struct user_data *) userData)->strings;
-    struct vector *names = ((struct user_data *) userData)->names;
-    printf("Leaving region %u at location %" PRIu64 " at time %" PRIu64 " (%s).\n",
-           region, location, time, ((char *) strings->members[names->members[region]]));
+    ezdata* data = userData;
+    printf("Leaving region %u at location %s at time %" PRIu64 " (%s).\n",
+           region, RetrieveLocationName(data, location), time, RetrieveRegionName(data, region));
 
     return OTF2_CALLBACK_SUCCESS;
 }
 
 OTF2_CallbackCode
 SetStringCallback(void *userData, OTF2_StringRef self, const char *string) {
-    struct vector *strings = ((struct user_data *) userData)->strings;
-    struct vector *names = ((struct user_data *) userData)->names;
-    strings->members[self] = (uint64_t) string;
-    printf(">> %i = %s\n", self, string);
+    ezdata* data = userData;
+    hash_put(data->strings, self, (void*)string);
+    printf(">> %i = %s\n", self, (char*)hash_get(data->strings, self));
     return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -55,8 +53,8 @@ GlobalDefinitionRegionRegisterCallback(void *userData,
                                        OTF2_StringRef sourceFile,
                                        uint32_t beginLineNumber,
                                        uint32_t endLineNumber) {
-    struct vector *names = ((struct user_data *) userData)->names;
-    names->members[self] = canonicalName;
+    ezdata* data = userData;
+    hash_put(data->region_names, self, (void*)name);
 
     return OTF2_CALLBACK_SUCCESS;
 }
@@ -68,11 +66,8 @@ GlobDefLocation_Register(void *userData,
                          OTF2_LocationType locationType,
                          uint64_t numberOfEvents,
                          OTF2_LocationGroupRef locationGroup) {
-    struct vector *locations = ((struct user_data *) userData)->locations;
-    if (locations->size == locations->capacity) {
-        return OTF2_CALLBACK_INTERRUPT;
-    }
-    locations->members[locations->size++] = location;
-
+    ezdata* data = userData;
+    hash_put(data->locations_names, location, (void*)name);
+    data->locations->members[data->locations->size++] = location;
     return OTF2_CALLBACK_SUCCESS;
 }

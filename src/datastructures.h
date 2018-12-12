@@ -4,16 +4,25 @@
 
 #ifndef EZPROFILE_DATASTRUCTURES_H
 #define EZPROFILE_DATASTRUCTURES_H
+#include <inttypes.h>
+#include <stdlib.h>
+
 struct vector {
     size_t capacity;
     size_t size;
     uint64_t members[];
 };
 
-struct user_data {
-    struct vector *locations;
-    struct vector *strings;
-    struct vector *names;
-};
+struct array_list {
+    void** backing_array;
+    size_t current_size;
+    size_t current_capacity;
+    size_t element_size;
+} typedef array_list;
 
+array_list* NewArrayList(size_t element_size);
+
+array_list* AddToArrayList(array_list* list, void* element);
+
+void* GetInArrayList(array_list* list, size_t index);
 #endif //EZPROFILE_DATASTRUCTURES_H
