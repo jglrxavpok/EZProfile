@@ -10,7 +10,7 @@ struct node {
 };
 
 struct hashmap *hash_init() {
-    struct hashmap *map = malloc(sizeof(struct hashmap));
+    struct hashmap *map = calloc(1, sizeof(struct hashmap));
     return map;
 }
 
@@ -24,8 +24,12 @@ void free_node(struct node *node) {
 }
 
 static struct node *insert_node(struct node *tree, struct node *n) {
-    if (tree == NULL)
+    if (n == NULL) {
+        return NULL;
+    }
+    if (tree == NULL) {
         return n;
+    }
     if (n->key < tree->key) {
         tree->left = insert_node(tree->left, n);
         return tree;
@@ -43,11 +47,9 @@ void hash_free(struct hashmap *map) {
 }
 
 void hash_put(struct hashmap *map, size_t key, void *val) {
-    struct node *n = malloc(sizeof(struct node));
+    struct node *n = calloc(1, sizeof(struct node));
     n->key = key;
     n->value = val;
-    n->left = NULL;
-    n->right = NULL;
     map->root = insert_node(map->root, n);
 }
 

@@ -12,10 +12,10 @@ int main() {
     getcwd(cwd, sizeof(cwd));
     printf("CWD: %s\n", cwd);
     OTF2_Reader* reader = OTF2_Reader_Open(
-            "../tests/test_stdio/eztrace_log.otf2"
+            //"../tests/test_stdio/eztrace_log.otf2"
             //"../tests/taurus_west_class_a_full_4/traces.otf2"
             //"../tests/scorep_smxv-omp-dynamic_large/traces.otf2"
-            //"../tests/taurus_west_class_a_full_4/traces.otf2"
+            "../tests/taurus_west_class_a_full_4/traces.otf2"
             );
     OTF2_Reader_SetSerialCollectiveCallbacks(reader);
 
