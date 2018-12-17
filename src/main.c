@@ -8,9 +8,6 @@
 #include "ezprofile.h"
 
 int main() {
-    char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
-    printf("CWD: %s\n", cwd);
     OTF2_Reader* reader = OTF2_Reader_Open(
             //"../tests/test_stdio/eztrace_log.otf2"
             //"../tests/taurus_west_class_a_full_4/traces.otf2"

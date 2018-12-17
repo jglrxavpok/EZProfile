@@ -84,7 +84,6 @@ void node_flat(struct node* node, void** ptr, size_t* index, size_t element_size
     if(node == NULL)
         return;
     ptr[*index] = &node->value;
-    printf(">> %li (size is %li) = %li\n", *index, element_size, &node->value);
     *index += element_size;
     node_flat(node->left, ptr, index, element_size);
     node_flat(node->right, ptr, index, element_size);
@@ -92,7 +91,6 @@ void node_flat(struct node* node, void** ptr, size_t* index, size_t element_size
 
 void** hash_flat(struct hashmap* map, size_t element_size, size_t* count) {
     *count = hash_count(map);
-    printf("COUNT=%li\n",*count);
     void** result = malloc((*count)*element_size);
     void** ptr = result;
     size_t index = 0x0;

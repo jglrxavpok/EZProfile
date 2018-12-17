@@ -40,10 +40,11 @@ OTF2_LocationRef RetrieveLocation(ezdata* data, size_t index) {
 
 void PrintEZResults(ezdata* data) {
     printf("Profile:\n");
-    for(size_t thread_index = 0;thread_index<data->thread_count;thread_index++) {
-        printf("Profile for thread #%li (%s)\n", thread_index, RetrieveThreadName(data, thread_index));
+    for(size_t thread_index = 0;thread_index<data->locations->size;thread_index++) {
+        OTF2_LocationRef thread_ref = data->locations->members[thread_index];
+        printf("Profile for thread #%li (%s) (%li)\n", thread_index, RetrieveThreadName(data, thread_ref), thread_ref);
         printf("%-20s | %-20s | %-20s\n", "Function name", "Inclusive time (s)", "Exclusive time(s)");
-        thread_data* thread = GetThreadData(data, thread_index);
+        thread_data* thread = GetThreadData(data, thread_ref);
         size_t function_count;
         function_data*** functions = (function_data*** ) hash_flat(thread->function_data, sizeof(function_data), &function_count);
         for(size_t func_index = 0;func_index<function_count;func_index++) {
