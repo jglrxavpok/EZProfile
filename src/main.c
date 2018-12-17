@@ -23,7 +23,7 @@ int main() {
     OTF2_Reader_GetNumberOfLocations(reader,
                                      &number_of_locations);
 
-    ezdata* ezdata = NewEZData(INCLUSIVE, 5, number_of_locations); // TODO: use real values
+    ezdata* ezdata = NewEZData(number_of_locations);
 
     OTF2_GlobalDefReader *global_def_reader = OTF2_Reader_GetGlobalDefReader(reader);
 
@@ -101,6 +101,9 @@ int main() {
 
     OTF2_Reader_CloseGlobalEvtReader(reader, global_evt_reader);
     OTF2_Reader_CloseEvtFiles(reader);
+
+
+    PrintEZResults(ezdata);
 
     OTF2_Reader_Close(reader);
     free(ezdata);

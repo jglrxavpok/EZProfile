@@ -24,3 +24,33 @@ void* GetInArrayList(array_list* list, size_t index) {
     printf("retrieve at %li in %li\n", index, (uint64_t)list);
     return list->backing_array[index];
 }
+
+stack* NewStack() {
+    return calloc(1, sizeof(stack));
+}
+
+void PushStack(stack* stack, void* element) {
+    if(stack->current_node == NULL) { // if stack empty
+        stack->current_node = calloc(1, sizeof(stacknode));
+        stack->current_node->data = element;
+    } else {
+        stacknode* new_node = calloc(1, sizeof(stacknode));
+        new_node->data = element;
+        new_node->parent = stack->current_node;
+        stack->current_node = new_node;
+    }
+}
+
+void* PopStack(stack* stack) {
+    if(stack->current_node == NULL)
+        return NULL;
+    void* data = stack->current_node->data;
+    stack->current_node = stack->current_node->parent;
+    return data;
+}
+
+void* PeekStack(stack* stack) {
+    if(stack->current_node == NULL)
+        return NULL;
+    return stack->current_node->data;
+}

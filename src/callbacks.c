@@ -15,8 +15,9 @@ RegionEntryCallback(OTF2_LocationRef location,
                     OTF2_RegionRef region) {
     ezdata* data = userData;
     printf("Entering region %u at location %s at time %" PRIu64 " (%s).\n",
-           region, RetrieveLocationName(data, location), time, RetrieveRegionName(data, region));
+           region, RetrieveThreadName(data, location), time, RetrieveRegionName(data, region));
 
+    EnterThreadFunction(data, GetThreadData(data, location), region, time);
     return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -28,8 +29,9 @@ RegionExitCallback(OTF2_LocationRef location,
                    OTF2_RegionRef region) {
     ezdata* data = userData;
     printf("Leaving region %u at location %s at time %" PRIu64 " (%s).\n",
-           region, RetrieveLocationName(data, location), time, RetrieveRegionName(data, region));
+           region, RetrieveThreadName(data, location), time, RetrieveRegionName(data, region));
 
+    ExitThreadFunction(data, GetThreadData(data, location), region, time);
     return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -67,7 +69,7 @@ GlobDefLocation_Register(void *userData,
                          uint64_t numberOfEvents,
                          OTF2_LocationGroupRef locationGroup) {
     ezdata* data = userData;
-    hash_put(data->locations_names, location, (void*)name);
+    hash_put(data->thread_names, location, (void*)name);
     data->locations->members[data->locations->size++] = location;
     return OTF2_CALLBACK_SUCCESS;
 }

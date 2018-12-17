@@ -69,3 +69,33 @@ void *node_get(struct node *node, size_t key) {
 void *hash_get(struct hashmap *map, size_t key) {
     return node_get(map->root, key);
 }
+
+size_t node_count(struct node* node) {
+    if(node == NULL)
+        return 0;
+    return 1 + node_count(node->left) + node_count(node->right);
+}
+
+size_t hash_count(struct hashmap* map) {
+    return node_count(map->root);
+}
+
+void node_flat(struct node* node, void** ptr, size_t* index, size_t element_size) {
+    if(node == NULL)
+        return;
+    ptr[*index] = &node->value;
+    printf(">> %li (size is %li) = %li\n", *index, element_size, &node->value);
+    *index += element_size;
+    node_flat(node->left, ptr, index, element_size);
+    node_flat(node->right, ptr, index, element_size);
+}
+
+void** hash_flat(struct hashmap* map, size_t element_size, size_t* count) {
+    *count = hash_count(map);
+    printf("COUNT=%li\n",*count);
+    void** result = malloc((*count)*element_size);
+    void** ptr = result;
+    size_t index = 0x0;
+    node_flat(map->root, ptr, &index, element_size);
+    return result;
+}

@@ -20,9 +20,23 @@ struct array_list {
     size_t element_size;
 } typedef array_list;
 
+struct stacknode {
+    struct stacknode* parent;
+    void* data;
+} typedef stacknode;
+
+struct stack {
+    stacknode* current_node;
+} typedef stack;
+
 array_list* NewArrayList(size_t element_size);
 
 array_list* AddToArrayList(array_list* list, void* element);
 
 void* GetInArrayList(array_list* list, size_t index);
+
+stack* NewStack();
+void PushStack(stack* stack, void* element);
+void* PopStack(stack* stack);
+void* PeekStack(stack* stack);
 #endif //EZPROFILE_DATASTRUCTURES_H

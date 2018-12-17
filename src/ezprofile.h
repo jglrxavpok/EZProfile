@@ -8,39 +8,78 @@
 #include "hashmap/hashmap.h"
 #include <stdint.h>
 #include "datastructures.h"
+
 /**
- * Represents how ezprofile should compile results: time spent in functions *including* in sub-routines or *excluding* ?
+ * Represents the data of a single function in a single thread
  */
-enum computation_mode {
-    INCLUSIVE,
-    EXCLUSIVE,
-} typedef computation_mode;
+struct function_data {
+    /**
+     * OTF2 name of the function
+     */
+    OTF2_RegionRef reference;
+
+    /**
+     * The time spent in this function, including sub-function calls
+     */
+    uint64_t inclusive_time_spent;
+    /**
+     * The time spent in this function, excluding sub-function calls
+     */
+    uint64_t exclusive_time_spent;
+
+    uint64_t last_entry_time_inclusive;
+    uint64_t last_entry_time_exclusive;
+} typedef function_data;
 
 /**
  * Represents the data of a single thread
  */
 struct thread_data {
+    struct hashmap* function_data;
 
+    function_data* current_function;
+    stack* callstack;
 } typedef thread_data;
 
 /**
  * Represents the data of the entire program
  */
 struct ezdata {
-    struct hashmap* locations_names;
+    struct hashmap* thread_names;
     struct hashmap* region_names;
     struct hashmap* strings;
     struct vector* locations;
-    computation_mode mode;
-    thread_data* threads;
-    uint8_t thread_count;
+    thread_data** threads;
+    struct hashmap* thread_indices;
+    size_t thread_count;
+    size_t last_thread_index;
 } typedef ezdata;
 
-ezdata* NewEZData(computation_mode mode, uint8_t thread_count, size_t location_count);
+// ezdata
+ezdata* NewEZData(size_t thread_count);
 
 char* RetrieveRegionName(ezdata* data, OTF2_RegionRef region);
 
-char* RetrieveLocationName(ezdata* data, OTF2_LocationRef location);
+char* RetrieveThreadName(ezdata *data, OTF2_LocationRef location);
 
 OTF2_LocationRef RetrieveLocation(ezdata* data, size_t index);
+
+thread_data* GetThreadData(ezdata* data, OTF2_LocationRef thread);
+
+void PrintEZResults(ezdata* data);
+
+// thread_data
+thread_data* NewThreadData();
+
+function_data* GetOrCreateFunctionData(thread_data* thread, OTF2_RegionRef function);
+/**
+ * Used to compute time spent in a function
+ */
+void EnterThreadFunction(ezdata* data, thread_data* thread, OTF2_RegionRef function, OTF2_TimeStamp time);
+void ExitThreadFunction(ezdata* data, thread_data* thread, OTF2_RegionRef function, OTF2_TimeStamp time);
+
+// function_data
+void EnterFunction(function_data* function, OTF2_TimeStamp time, bool subcall);
+void ExitFunction(function_data* function, OTF2_TimeStamp time, bool subcall);
+
 #endif //EZPROFILE_EZPROFILE_H
