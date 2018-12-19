@@ -27,5 +27,5 @@ add_executable(ezprofile
         src/datastructures.h
         src/hashmap/hashmap.c
         src/hashmap/hashmap.h
-        src/ezprofile.c src/ezprofile.h src/datastructures.c)
+        src/ezprofile.c src/ezprofile.h src/datastructures.c src/arguments.c src/arguments.h)
 target_link_libraries(ezprofile otf2)

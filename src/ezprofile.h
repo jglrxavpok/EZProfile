@@ -8,6 +8,7 @@
 #include "hashmap/hashmap.h"
 #include <stdint.h>
 #include "datastructures.h"
+#include "arguments.h"
 
 /**
  * Represents the data of a single function in a single thread
@@ -22,12 +23,17 @@ struct function_data {
      * The time spent in this function, including sub-function calls
      */
     uint64_t inclusive_time_spent;
+    uint64_t min_inclusive_time;
+    uint64_t max_inclusive_time;
+    uint64_t call_count;
+    double average_inclusive_time;
     /**
      * The time spent in this function, excluding sub-function calls
      */
     uint64_t exclusive_time_spent;
 
-    uint64_t last_entry_time_inclusive;
+    stack* entry_times;
+    stack* exclusive_entry_times;
     uint64_t last_entry_time_exclusive;
 } typedef function_data;
 
@@ -53,10 +59,16 @@ struct ezdata {
     struct hashmap* thread_indices;
     size_t thread_count;
     size_t last_thread_index;
+
+    computation_mode computation_mode;
+
+    // filtering options
+    char* thread_name;
+    int thread_index;
 } typedef ezdata;
 
 // ezdata
-ezdata* NewEZData(size_t thread_count);
+ezdata* NewEZData(size_t thread_count, computation_mode computation_mode, int thread_index, char* thread_name);
 
 char* RetrieveRegionName(ezdata* data, OTF2_RegionRef region);
 

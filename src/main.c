@@ -6,21 +6,17 @@
 #include "datastructures.h"
 #include "callbacks.h"
 #include "ezprofile.h"
+#include "arguments.h"
 
-int main() {
-    OTF2_Reader* reader = OTF2_Reader_Open(
-            //"../tests/test_stdio/eztrace_log.otf2"
-            //"../tests/taurus_west_class_a_full_4/traces.otf2"
-            //"../tests/scorep_smxv-omp-dynamic_large/traces.otf2"
-            "../tests/taurus_west_class_a_full_4/traces.otf2"
-            );
+void readOTF2File(arguments* args) {
+    OTF2_Reader* reader = OTF2_Reader_Open(args->trace_file);
     OTF2_Reader_SetSerialCollectiveCallbacks(reader);
 
     uint64_t number_of_locations;
     OTF2_Reader_GetNumberOfLocations(reader,
                                      &number_of_locations);
 
-    ezdata* ezdata = NewEZData(number_of_locations);
+    ezdata* ezdata = NewEZData(number_of_locations, args->computation_mode, args->thread_index, args->thread_name);
 
     OTF2_GlobalDefReader *global_def_reader = OTF2_Reader_GetGlobalDefReader(reader);
 
@@ -104,5 +100,19 @@ int main() {
 
     OTF2_Reader_Close(reader);
     free(ezdata);
+}
+
+int main(int argc, char** argv) {
+    arguments* args = parse_arguments(argc, argv);
+    if(!args) { // failed to parse arguments
+        return -1;
+    }
+    readOTF2File(
+            args
+            //"../tests/test_stdio/eztrace_log.otf2"
+            //"../tests/taurus_west_class_a_full_4/traces.otf2"
+            //"../tests/scorep_smxv-omp-dynamic_large/traces.otf2"
+            //"../tests/taurus_west_class_a_full_4/traces.otf2"
+    );
     return EXIT_SUCCESS;
 }
